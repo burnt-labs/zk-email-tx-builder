@@ -3,9 +3,15 @@
   "license": "MIT",
   "version": "1.0.0",
   "scripts": {
-    "build:all": "NODE_OPTIONS=--max_old_space_size=16384 npx ts-node scripts/build-all.ts --sequential",
-    "build:list": "npx ts-node scripts/build-all.ts --list",
-    "dev-setup": "NODE_OPTIONS=--max_old_space_size=16384 npx ts-node scripts/dev-setup.ts --output ./build",
+    "build": "mkdir -p build && circom src/email_auth.circom --r1cs --wasm --sym --c -l ../../node_modules -o ./build",
+    "build-legacy": "mkdir -p build && circom src/email_auth_legacy.circom --r1cs --wasm --sym --c -l ../../node_modules -o ./build",
+    "build-recipient": "mkdir -p build && circom src/email_auth_with_recipient.circom --r1cs --wasm --sym --c -l ../../node_modules -o ./build",
+    "build-xion-reveal-to-and-subject": "mkdir -p build && circom src/instances/xion/reveal_to_and_subject.circom --r1cs --wasm --sym --c -l ../../node_modules -o ./build",
+    "build-xion-reveal-subject": "mkdir -p build && circom src/instances/xion/reveal_subject.circom --r1cs --wasm --sym --c -l ../../node_modules -o ./build",
+    "dev-setup": "NODE_OPTIONS=--max_old_space_size=28672 npx ts-node scripts/dev-setup.ts --output ./build",
+    "dev-setup-no-timestamp": "NODE_OPTIONS=--max_old_space_size=28672 npx ts-node scripts/dev-setup.ts --output ./build/no-timestamp --circuit email_auth_no_timestamp",
+    "dev-setup-xion-reveal-to-and-subject": "NODE_OPTIONS=--max_old_space_size=43008 npx ts-node scripts/dev-setup.ts --output ./build --circuit reveal_to_and_subject",
+    "dev-setup-xion-reveal-subject": "NODE_OPTIONS=--max_old_space_size=28672 npx ts-node scripts/dev-setup.ts --output ./build --circuit reveal_subject",
     "gen-input": "NODE_OPTIONS=--max_old_space_size=8192 npx ts-node scripts/gen_input.ts",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 jest",
     "test-large": "NODE_OPTIONS=--max_old_space_size=32768 jest"
