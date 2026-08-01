@@ -1,0 +1,52 @@
+name: Circuit Integration Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: circuit-integration
+  cancel-in-progress: false
+
+jobs:
+  circuits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 130
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+        with:
+          version: ">= 363.0.0"
+
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin -q
+
+      - name: Configure kubectl
+        run: gcloud container clusters get-credentials "${{ secrets.YOUR_CLUSTER_NAME }}" --region "${{ secrets.YOUR_REGION }}"
+
+      - name: Delete existing job if it exists
+        run: kubectl delete job circuits-job --ignore-not-found=true
+
+      - name: Prepare and deploy Circuits job to GKE
+        env:
+          REPO_URL: https://github.com/${{ github.repository }}
+          COMMIT_HASH: ${{ github.sha }}
+        run: |
+          envsubst < kubernetes/circuit-test-job.yml > kubernetes/circuit-test-job-processed.yml
+          kubectl apply -f kubernetes/circuit-test-job-processed.yml
+
+      - name: Wait for job to complete
+        run: kubectl wait --for=condition=complete --timeout=7200s job/circuits-job
+
+      - name: Stream logs from GKE
+        if: ${{ always() }}
+        run: kubectl logs job/circuits-job

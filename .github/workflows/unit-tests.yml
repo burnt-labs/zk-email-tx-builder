@@ -3,63 +3,14 @@ name: Unit Tests
 on: [push]
 
 jobs:
-  circuits:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Authenticate with GCP
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v2"
-        with:
-          version: ">= 363.0.0"
-
-      - name: Install gke-gcloud-auth-plugin
-        run: |
-          gcloud components install gke-gcloud-auth-plugin -q
-
-      - name: Configure kubectl
-        run: |
-          gcloud container clusters get-credentials ${{ secrets.YOUR_CLUSTER_NAME }} --region ${{ secrets.YOUR_REGION }}
-
-      - name: Delete existing job if it exists
-        run: |
-          kubectl delete job circuits-job --ignore-not-found=true
-
-      - name: Prepare and Deploy Circuits Job to GKE
-        env:
-          REPO_URL: "https://github.com/${{ github.repository }}"
-          COMMIT_HASH: "${{ github.sha }}"
-        run: |
-          # Prepare the job file with substituted environment variables
-          envsubst < kubernetes/circuit-test-job.yml > kubernetes/circuit-test-job-processed.yml
-
-          # Output the processed job file for verification
-          cat kubernetes/circuit-test-job-processed.yml
-
-          # Apply the job to GKE
-          kubectl apply -f kubernetes/circuit-test-job-processed.yml
-
-      - name: Wait for Job to Complete
-        run: |
-          kubectl wait --for=condition=complete --timeout=7200s job/circuits-job
-
-      - name: Stream Logs from GKE
-        run: |
-          kubectl logs job/circuits-job
-
   contracts:
     name: contracts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 18
 
@@ -70,7 +21,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1.2.0
+        uses: foundry-rs/foundry-toolchain@8f1998e9878d786675189ef566a2e4bf24869773 # v1.2.0
         with:
           version: nightly-0079a1146b79a4aeda58b0258215bedb1f92700b
 
@@ -82,10 +33,10 @@ jobs:
     name: relayer
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 18
 
@@ -96,7 +47,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1.2.0
+        uses: foundry-rs/foundry-toolchain@8f1998e9878d786675189ef566a2e4bf24869773 # v1.2.0
         with:
           version: nightly-0079a1146b79a4aeda58b0258215bedb1f92700b
 

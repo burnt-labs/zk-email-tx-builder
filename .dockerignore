@@ -42,6 +42,7 @@ sql_database.db
 .ic.pem
 
 # Relayer
+packages/relayer/config.json
 packages/relayer/sendgrid.env
 target
 packages/relayer/db/*
